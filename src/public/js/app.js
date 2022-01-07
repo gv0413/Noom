@@ -41,6 +41,9 @@ function handleSubmit(event) {
   const input = messageForm.querySelector("input");
   // form으로 be에 메세지 보내기 
   socket.send(makeMessage("new_message", input.value));
+  const li = document.createElement("li");
+  li.innerText = `You: ${input.value}`;
+  messageList.append(li);
   input.value = "";
 }
 function handleNickSubmit(event) {
