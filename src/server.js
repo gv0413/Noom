@@ -15,6 +15,9 @@ const handleListen = () => console.log(`Listening on http://localhost:3000`);
 const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
+wsServer.on("connection", socket => {
+  console.log(socket);
+});
 const sockets = [];
 
 // socket은 연결된 어떤 사람. 여결된 브라우저와의 컨택트
