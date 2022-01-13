@@ -18,7 +18,10 @@ html(lang = "en")
       div#room
         h3
         ul
-        form
+        form#name
+          input(placeholder="nickname", required, type="text")
+          button Save
+        form#message
           input(placeholder="message", required, type="text")
           button Send
     //- 브라우저에 socketIO설치 
