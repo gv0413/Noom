@@ -16,9 +16,14 @@ const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
 wsServer.on("connection", socket => {
-  console.log(socket);
+  socket.on("enter_room", (roomName, done) => {
+    console.log(roomName);
+    setTimeout(()=> {
+      done("hello from the backend"); // FE에서 실행
+    }, 1000);
+  });
 });
-const sockets = [];
+// const sockets = [];
 
 // socket은 연결된 어떤 사람. 여결된 브라우저와의 컨택트
 // wss.on("connection", (socket) =>{
