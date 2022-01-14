@@ -5,6 +5,7 @@ html(lang = "en")
     meta(http-equiv="X-UA-Compatible", content="IE=enge")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     link(rel="stylesheet", href="https://unpkg.com/mvp.css")
+    link(rel="stylesheet", href="../public/js/index.css")
     title Noom
   body 
     header
@@ -16,15 +17,16 @@ html(lang = "en")
           button Enter room
       div#call
         div#myStream
-          div
+          div#myVideo
             h2 My Video
-            video#myFace(autoplay,playsinline, width="400", height="400")
-            button#mute Mute
-            button#camera Turn Camera Off
+            video#myFace(autoplay,playsinline, width="100%", height="400")
+            div#btn-wrapper
+              button#mute Mute
+              button#camera Turn Camera Off
             select#cameras
           div
             h2 Other's Video
-            video#peerFace(autoplay,playsinline, width="400", height="400")
+            video#peerFace(autoplay,playsinline, width="100%", height="400")
           
 
     //- 브라우저에 socketIO설치 

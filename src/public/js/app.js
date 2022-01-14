@@ -14,6 +14,7 @@ let muted = false;
 let cameraOff = false;
 let roomName;
 let myPeerConnection;
+let myDataChannel;
 
 async function getCameras() {
   try{
@@ -122,6 +123,8 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 // peer A에서 실행됨 
 socket.on("welcome", async()=> {
+  myDataChannel = myPeerConnection.createDataChannel("chat");
+  myDataChannel.addEventListener("message", event => console.log(event));
   // 시그널링 프로세스를 시작할 때, call을 시작 하는 유저가 offer 란 것을 만든다. 
   // 이 offer는 세션 정보를 SDP 포맷으로 가지고 있으며, 커넥션이 이어지기를 원하는 유저(callee)에게 전달되어야 한다. 
   // Callee 는 이 offer에 SDP description을 포함하는 answer 메세지를 보내야한다.
@@ -133,10 +136,13 @@ socket.on("welcome", async()=> {
 
 // peer B에서 실행됨 
 socket.on("offer", async(offer) => {
+  myPeerConnection.addEventListener("datachannel", event =>  {
+    myDataChannel = event.channel;
+    myDataChannel.addEventListener("message", event => console.log(event.data))
+  })
   console.log("received the offer")
   myPeerConnection.setRemoteDescription(offer);
   const answer = await myPeerConnection.createAnswer();
-  console.log(answer)
   myPeerConnection.setLocalDescription(answer);
   socket.emit("answer", answer, roomName);
   console.log("sent the answer")
@@ -155,9 +161,23 @@ socket.on("ice", ice => {
 
 // RTC Code 
 function makeConnection() {
-  myPeerConnection = new RTCPeerConnection();
+  myPeerConnection = new RTCPeerConnection({ // 구글의 STUN 서버를 빌려서 사용!! 테스트용도로만 쓸 것!!
+        iceServers: [
+            {
+                urls: [
+                    "stun:stun.l.google.com:19302",
+                    "stun:stun1.l.google.com:19302",
+                    "stun:stun2.l.google.com:19302",
+                    "stun:stun3.l.google.com:19302",
+                    "stun:stun4.l.google.com:19302",
+                ]
+            },
+        ],
+    });
+
   myPeerConnection.addEventListener("icecandidate", handleIce);
   myPeerConnection.addEventListener("addstream", handleAddStream);
+  // myPeerConnection.addEventListener("track", handleTrack);
   myStream.getTracks().forEach(track => myPeerConnection.addTrack(track, myStream));
 }
 
@@ -172,3 +192,7 @@ function handleAddStream(data){
   console.log("got an event from my peer");
   console.log(data)
 }
+// function handleTrack(data) {
+//   const peerFace = document.getElementById("peerFace")
+//   peerFace.srcObject = data.streams[0];
+// }

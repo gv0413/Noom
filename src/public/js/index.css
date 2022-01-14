@@ -1,0 +1,21 @@
+#myStream {
+  display: flex;
+  justify-content: space-between
+}
+
+#myVideo {
+  flex-basis: 50%;
+}
+
+#btn-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+#mute {
+  margin-right: 10px;
+}
+
+#cameras {
+  margin: 0 auto;
+}
