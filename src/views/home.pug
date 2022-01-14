@@ -16,10 +16,16 @@ html(lang = "en")
           button Enter room
       div#call
         div#myStream
-          video#myFace(autoplay,playsinline, width="400", height="400")
-          button#mute Mute
-          button#camera Turn Camera Off
-          select#cameras
+          div
+            h1 My Video
+            video#myFace(autoplay,playsinline, width="400", height="400")
+            button#mute Mute
+            button#camera Turn Camera Off
+            select#cameras
+          div
+            h1 Other's Video
+            video#peerFace(autoplay,playsinline, width="400", height="400")
+          
 
     //- 브라우저에 socketIO설치 
     script(src="/socket.io/socket.io.js")  
