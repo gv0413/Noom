@@ -13,6 +13,7 @@ let myStream;
 let muted = false;
 let cameraOff = false;
 let roomName;
+let myPeerConnection;
 
 async function getCameras() {
   try{
@@ -90,16 +91,19 @@ camerasSelect.addEventListener("input", handleCamerasChange);
 const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
 
-function startMedia() {
+async function initCall() {
   welcome.hidden = true;
   call.hidden = false;
-  getMedia();
+  await getMedia();
+  makeConnection();
 }
 
-function handleWelcomeSubmit(event) {
+
+async function handleWelcomeSubmit(event) {
   event.preventDefault();
   const input = welcomeForm.querySelector("input");
-  socket.emit("join_room", input.value, startMedia);
+  await initCall();
+  socket.emit("join_room", input.value);
   roomName = input.value;
   input.value = ""
 }
@@ -108,6 +112,33 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 // Socket code
 
-socket.on("welcome", ()=> {
-  console.log("somebody joined")
+// peer A에서 실행됨 
+socket.on("welcome", async()=> {
+  // 시그널링 프로세스를 시작할 때, call을 시작 하는 유저가 offer 란 것을 만든다. 
+  // 이 offer는 세션 정보를 SDP 포맷으로 가지고 있으며, 커넥션이 이어지기를 원하는 유저(callee)에게 전달되어야 한다. 
+  // Callee 는 이 offer에 SDP description을 포함하는 answer 메세지를 보내야한다.
+  const offer = await myPeerConnection.createOffer();
+  myPeerConnection.setLocalDescription(offer);
+  console.log("sent the offer")
+  socket.emit("offer", offer, roomName);
 })
+
+// peer B에서 실행됨 
+socket.on("offer", async(offer) => {
+  myPeerConnection.setRemoteDescription(offer);
+  const answer = await myPeerConnection.createAnswer();
+  console.log(answer)
+  myPeerConnection.setLocalDescription(answer);
+  socket.emit("answer", answer, roomName);
+})
+
+// peer A에서 실행됨
+socket.on("answer", answer => {
+  myPeerConnection.setRemoteDescription(answer);
+})
+
+// RTC Code 
+function makeConnection() {
+  myPeerConnection = new RTCPeerConnection();
+  myStream.getTracks().forEach(track => myPeerConnection.addTrack(track, myStream));
+}
