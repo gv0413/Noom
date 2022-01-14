@@ -81,6 +81,14 @@ function handleCameraClick() {
 
 async function handleCamerasChange() {
   await getMedia(camerasSelect.value)
+  // 카메라 바꿔도 상대방에게서 바뀌지 않도록 버그 해결 
+  // sender: 우리의 peer로 보내진 media stream track을 컨트롤할 수 있도록 해줌
+  if(myPeerConnection) {
+    const videoTrack = myStream.getVideoTracks()[0]
+    const videoSender = myPeerConnection.getSenders().find(sender => sender.track.kind === "video")
+    console.log(videoSender)
+    videoSender.replaceTrack(videoTrack)
+  }
 }
 
 muteBtn.addEventListener("click", handleMuteClick);
